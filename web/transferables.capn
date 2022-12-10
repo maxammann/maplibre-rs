@@ -1,0 +1,43 @@
+@0xebf447aa53de5745;
+
+struct TransferableWorldTileCoords {
+    x @0 :Int32;
+    y @1 :Int32;
+    z @2 :UInt8;
+}
+
+
+
+struct LinearTileTessellated {
+    coords @0 :TransferableWorldTileCoords;
+}
+
+struct LinearLayerUnavailable {
+    coords @0 :TransferableWorldTileCoords;
+    layerName @1 :Text;
+}
+
+struct Vec2f32 {
+    a @0 :Float32;
+    b @1 :Float32;
+}
+
+struct ShaderVertex {
+    position @0 :List(Float32);
+    normal @1 :List(Float32);
+}
+
+struct LinearLayerTessellated {
+    size @0 :UInt8;
+    coords @1 :TransferableWorldTileCoords;
+    layerName @2 :Text;
+    vertices @3 :List(ShaderVertex);
+    indices @4 :List(UInt32);
+    usableIndices @5 :UInt32;
+    # Holds for each feature the count of indices.
+    featureIndices @6 :List(UInt32);
+}
+
+struct LinearLayerIndexed {
+    coords @0 :TransferableWorldTileCoords;
+}
