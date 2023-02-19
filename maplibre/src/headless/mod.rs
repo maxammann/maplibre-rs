@@ -24,6 +24,7 @@ mod graph_node;
 mod system;
 
 pub mod environment;
+pub mod error;
 pub mod map;
 pub mod window;
 
