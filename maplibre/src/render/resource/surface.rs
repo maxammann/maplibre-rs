@@ -4,6 +4,7 @@
 use std::{mem::size_of, num::NonZeroU32, sync::Arc};
 
 use log::debug;
+use thiserror::Error;
 
 use crate::{
     render::{eventually::HasChanged, resource::texture::TextureView, settings::RendererSettings},
@@ -80,6 +81,16 @@ pub struct BufferedTextureHead {
     buffer_dimensions: BufferDimensions,
 }
 
+
+#[cfg(feature = "headless")]
+#[derive(Error, Debug)]
+pub enum WriteImageError {
+    #[error("error while rendering to image")]
+    WriteImage(#[from] png::EncodingError),
+    #[error("could not create file to save as an image")]
+    CreateImageFileFailed(#[from] std::io::Error),
+}
+
 #[cfg(feature = "headless")]
 impl BufferedTextureHead {
     pub fn map_async(&self, device: &wgpu::Device) -> wgpu::BufferSlice {
@@ -102,7 +113,7 @@ impl BufferedTextureHead {
         &self,
         padded_buffer: &wgpu::BufferView<'a>,
         png_output_path: &str,
-    ) -> Result<(), crate::headless::error::HeadlessRenderError> {
+    ) -> Result<(), WriteImageError> {
         use std::{fs::File, io::Write};
         let mut png_encoder = png::Encoder::new(
             File::create(png_output_path)?,
