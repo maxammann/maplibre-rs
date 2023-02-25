@@ -6,7 +6,7 @@ use crate::{
     headless::environment::HeadlessEnvironment,
     io::{
         apc::{Context, IntoMessage, Message, SendError},
-        source_client::SourceFetchError,
+        http::SourceFetchError,
         source_type::{SourceType, TessellateSource},
     },
     kernel::Kernel,

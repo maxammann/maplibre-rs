@@ -5,10 +5,7 @@ use std::{borrow::Cow, collections::HashSet, marker::PhantomData, rc::Rc};
 use crate::{
     context::MapContext,
     environment::{Environment, OffscreenKernelEnvironment},
-    io::{
-        apc::{AsyncProcedureCall, AsyncProcedureFuture, Context, Input, ProcedureError},
-        source_type::{SourceType, TessellateSource},
-    },
+    io::apc::{AsyncProcedureCall, AsyncProcedureFuture, Context, Input, ProcedureError},
     kernel::Kernel,
     style::layer::LayerPaint,
     tcs::system::System,

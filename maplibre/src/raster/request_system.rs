@@ -5,10 +5,7 @@ use std::{borrow::Cow, collections::HashSet, marker::PhantomData, rc::Rc};
 use crate::{
     context::MapContext,
     environment::{Environment, OffscreenKernelEnvironment},
-    io::{
-        apc::{AsyncProcedureCall, AsyncProcedureFuture, Context, Input, ProcedureError},
-        source_type::{RasterSource, SourceType},
-    },
+    io::apc::{AsyncProcedureCall, AsyncProcedureFuture, Context, Input, ProcedureError},
     kernel::Kernel,
     raster::{
         process_raster::{process_raster_tile, ProcessRasterContext, RasterTileRequest},

@@ -5,7 +5,7 @@ use log::error;
 use maplibre::{
     benchmarking::io::{
         apc::{AsyncProcedure, Input, Message},
-        source_client::{HttpSourceClient, SourceClient},
+        http::{HttpSourceClient, SourceClient},
     },
     environment::OffscreenKernelEnvironment,
     io::apc::CallError,

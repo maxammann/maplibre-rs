@@ -1,7 +1,4 @@
-use crate::{
-    environment::Environment,
-    io::source_client::{HttpSourceClient, SourceClient},
-};
+use crate::environment::Environment;
 
 /// Holds references to core constructs of maplibre. Based on the compile-time initialization
 /// different implementations for handling windows, asynchronous work, or data sources are provided

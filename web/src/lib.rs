@@ -3,7 +3,7 @@
 use maplibre::{
     environment::OffscreenKernelEnvironment,
     event_loop::EventLoop,
-    io::source_client::{HttpSourceClient, SourceClient},
+    io::http::{HttpSourceClient, SourceClient},
     kernel::{Kernel, KernelBuilder},
     map::Map,
     render::builder::RendererBuilder,

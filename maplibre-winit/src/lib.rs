@@ -6,7 +6,7 @@ use instant::Instant;
 use maplibre::{
     environment::{Environment, OffscreenKernelEnvironment},
     event_loop::{EventLoop, EventLoopProxy, SendEventError},
-    io::{apc::AsyncProcedureCall, scheduler::Scheduler, source_client::HttpClient},
+    io::{apc::AsyncProcedureCall, http::HttpClient, scheduler::Scheduler},
     map::Map,
     window::{HeadedMapWindow, MapWindowConfig},
 };

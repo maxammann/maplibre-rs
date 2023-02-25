@@ -9,7 +9,7 @@ use maplibre::{
             AsyncProcedure, AsyncProcedureCall, CallError, Context, Input, IntoMessage, Message,
             MessageTag, SendError,
         },
-        source_client::SourceClient,
+        http::SourceClient,
     },
 };
 use rand::{prelude::SliceRandom, thread_rng};

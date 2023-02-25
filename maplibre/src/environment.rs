@@ -1,9 +1,5 @@
 use crate::{
-    io::{
-        apc::AsyncProcedureCall,
-        scheduler::Scheduler,
-        source_client::{HttpClient, SourceClient},
-    },
+    io::{apc::AsyncProcedureCall, http::HttpClient, scheduler::Scheduler},
     window::MapWindowConfig,
 };
 

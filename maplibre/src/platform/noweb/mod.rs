@@ -5,11 +5,7 @@ use std::{
     sync::atomic::{AtomicUsize, Ordering},
 };
 
-use crate::{
-    environment::OffscreenKernelEnvironment,
-    io::source_client::{HttpSourceClient, SourceClient},
-    platform::http_client::ReqwestHttpClient,
-};
+use crate::{environment::OffscreenKernelEnvironment, platform::http_client::ReqwestHttpClient};
 
 pub mod http_client;
 pub mod scheduler;
