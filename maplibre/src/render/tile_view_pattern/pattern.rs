@@ -84,6 +84,8 @@ impl<Q: Queue<B>, B> TileViewPattern<Q, B> {
                             .collect(),
                     )
                 } else {
+                    log::trace!("Could not find data at {coords}.");
+
                     SourceShapes::None
                 }
             };

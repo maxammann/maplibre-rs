@@ -143,7 +143,11 @@ pub trait HasTile {
             children = new_children;
         }
 
-        Some(output)
+        if output.is_empty() {
+            Some(output)
+        } else {
+            None
+        }
     }
 }
 
