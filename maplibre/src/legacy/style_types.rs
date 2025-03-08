@@ -3,6 +3,7 @@
 
 use std::{any::TypeId, collections::BTreeSet, marker::PhantomData};
 
+use crate::legacy::style_types::expression::{Formatted, FormattedSection};
 use crate::legacy::{layout::symbol_feature::SymbolGeometryTileFeature, CanonicalTileID};
 
 /// maplibre/maplibre-native#4add9ea original name: SymbolPlacementType
@@ -1145,12 +1146,17 @@ impl SymbolLayoutProperties_PossiblyEvaluated {
         p1: &SymbolGeometryTileFeature,
         available_images: &BTreeSet<String>,
         p2: CanonicalTileID,
-    ) -> T::Type {
-        //todo!()
-
-        //p1.get_value(&T::name());
-
-        T::default_value()
+    ) -> expression::Formatted {
+        // TODO
+        Formatted {
+            sections: vec![FormattedSection {
+                text: p1.get_value(&T::name()).unwrap().to_string(),
+                image: None,
+                font_scale: None,
+                font_stack: None,
+                text_color: None,
+            }],
+        }
     }
 
     /// maplibre/maplibre-native#4add9ea original name: evaluate_static

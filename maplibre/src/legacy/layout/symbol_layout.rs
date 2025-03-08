@@ -491,7 +491,8 @@ impl SymbolLayout {
             }
 
             if has_icon {
-                ft.icon = Some(self_.layout.evaluate4::<IconImage>(
+                todo!()
+                /*ft.icon = Some(self_.layout.evaluate4::<IconImage>(
                     self_.zoom,
                     &ft,
                     layout_parameters.available_images,
@@ -500,6 +501,8 @@ impl SymbolLayout {
                 layout_parameters
                     .image_dependencies
                     .insert(ft.icon.as_ref().unwrap().image_id.clone(), ImageType::Icon);
+
+                 */
             }
 
             if ft.formatted_text.is_some() || ft.icon.is_some() {

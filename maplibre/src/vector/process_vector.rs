@@ -1,8 +1,4 @@
-use std::{
-    borrow::Cow,
-    collections::{HashSet},
-    marker::PhantomData,
-};
+use std::{borrow::Cow, collections::HashSet, marker::PhantomData};
 
 use geozero::{
     mvt::{tile, Message},
@@ -10,6 +6,7 @@ use geozero::{
 };
 use thiserror::Error;
 
+use crate::sdf::tessellation_new::TextTessellatorNew;
 use crate::{
     coords::WorldTileCoords,
     io::{
@@ -30,7 +27,6 @@ use crate::{
         },
     },
 };
-use crate::sdf::tessellation_new::TextTessellatorNew;
 
 #[derive(Error, Debug)]
 pub enum ProcessVectorError {

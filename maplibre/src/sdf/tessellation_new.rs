@@ -8,9 +8,13 @@ use geozero::{
 };
 use lyon::{
     geom::euclid::{Box2D, Point2D},
-    tessellation::{VertexBuffers},
+    tessellation::VertexBuffers,
 };
 
+use crate::legacy::buckets::symbol_bucket::SymbolBucketBuffer;
+use crate::legacy::geometry_tile_data::FeatureType;
+use crate::sdf::tessellation::IndexDataType;
+use crate::sdf::text::GlyphSet;
 use crate::{
     euclid::{Rect, Size2D},
     legacy::{
@@ -32,10 +36,6 @@ use crate::{
     render::shaders::ShaderSymbolVertexNew,
     sdf::Feature,
 };
-use crate::legacy::buckets::symbol_bucket::SymbolBucketBuffer;
-use crate::legacy::tagged_string::SectionOptions;
-use crate::sdf::tessellation::IndexDataType;
-use crate::sdf::text::GlyphSet;
 
 type GeoResult<T> = geozero::error::Result<T>;
 
@@ -51,6 +51,7 @@ pub struct TextTessellatorNew {
     current_index: usize,
     current_text: Option<String>,
     current_origin: Option<Box2D<f32, TileSpace>>,
+    symbol_features: Vec<SymbolGeometryTileFeature>,
 }
 
 impl TextTessellatorNew {
@@ -65,8 +66,6 @@ impl TextTessellatorNew {
 
         let layer_name = "layer".to_string();
 
-        let section_options = SectionOptions::new(1.0, font_stack.clone(), None);
-
         let mut glyph_dependencies = GlyphDependencies::new();
 
         let tile_id = OverscaledTileID {
@@ -74,20 +73,15 @@ impl TextTessellatorNew {
             overscaled_z: 0,
         };
         let mut parameters = BucketParameters {
-            tile_id: tile_id,
+            tile_id,
             mode: MapMode::Continuous,
             pixel_ratio: 1.0,
             layer_type: LayerTypeInfo,
         };
+
         let layer_data = SymbolGeometryTileLayer {
             name: layer_name.clone(),
-            features: vec![SymbolGeometryTileFeature::new(Box::new(
-                VectorGeometryTileFeature {
-                    geometry: vec![GeometryCoordinates(vec![Point2D::new(
-                        512, 512,
-                    )])],
-                },
-            ))],
+            features: self.symbol_features.clone(),
         };
         let layer_properties = vec![LayerProperties {
             id: layer_name.clone(),
@@ -98,8 +92,8 @@ impl TextTessellatorNew {
 
         let image_positions = ImagePositions::new();
 
-        let glyph_map = GlyphPositionMap::from_iter(glyphs.glyphs.iter().map(
-            |(unicode_point, glyph)| {
+        let glyph_map =
+            GlyphPositionMap::from_iter(glyphs.glyphs.iter().map(|(unicode_point, glyph)| {
                 (
                     *unicode_point as Char16,
                     GlyphPosition {
@@ -122,32 +116,29 @@ impl TextTessellatorNew {
                         },
                     },
                 )
-            },
-        ));
+            }));
 
         let glyph_positions: GlyphPositions =
             GlyphPositions::from([(FontStackHasher::new(&font_stack), glyph_map)]);
 
         let glyphs: GlyphMap = GlyphMap::from([(
             FontStackHasher::new(&font_stack),
-            Glyphs::from_iter(glyphs.glyphs.iter().map(
-                |(unicode_point, glyph)| {
-                    (
-                        *unicode_point as Char16,
-                        Some(Glyph {
-                            id: *unicode_point as Char16,
-                            bitmap: Default::default(),
-                            metrics: GlyphMetrics {
-                                width: glyph.width,
-                                height: glyph.height,
-                                left: glyph.left_bearing,
-                                top: glyph.top_bearing,
-                                advance: glyph.h_advance,
-                            },
-                        }),
-                    )
-                },
-            )),
+            Glyphs::from_iter(glyphs.glyphs.iter().map(|(unicode_point, glyph)| {
+                (
+                    *unicode_point as Char16,
+                    Some(Glyph {
+                        id: *unicode_point as Char16,
+                        bitmap: Default::default(),
+                        metrics: GlyphMetrics {
+                            width: glyph.width,
+                            height: glyph.height,
+                            left: glyph.left_bearing,
+                            top: glyph.top_bearing,
+                            advance: glyph.h_advance,
+                        },
+                    }),
+                )
+            })),
         )]);
 
         let mut layout = SymbolLayout::new(
@@ -161,9 +152,9 @@ impl TextTessellatorNew {
                 available_images: &mut Default::default(),
             },
         )
-            .unwrap();
+        .unwrap();
 
-        assert_eq!(glyph_dependencies.len(), 1);
+        // assert_eq!(glyph_dependencies.len(), 1);
 
         let empty_image_map = ImageMap::new();
         layout.prepare_symbols(
@@ -211,6 +202,7 @@ impl Default for TextTessellatorNew {
             current_index: 0,
             current_text: None,
             current_origin: None,
+            symbol_features: vec![],
         }
     }
 }
@@ -254,9 +246,7 @@ impl GeomProcessor for TextTessellatorNew {
     }
 }
 
-impl PropertyProcessor
-    for TextTessellatorNew
-{
+impl PropertyProcessor for TextTessellatorNew {
     fn property(
         &mut self,
         _idx: usize,
@@ -276,29 +266,55 @@ impl PropertyProcessor
     }
 }
 
-impl FeatureProcessor
-    for TextTessellatorNew
-{
+impl FeatureProcessor for TextTessellatorNew {
     fn feature_end(&mut self, _idx: u64) -> geozero::error::Result<()> {
         let geometry = self.geo_writer.take_geometry();
-
-        match geometry {
-            Some(Geometry::Point(_point)) => {}
-            Some(Geometry::Polygon(_polygon)) => {}
-            Some(Geometry::LineString(_linestring)) => {}
-            Some(Geometry::Line(_))
-            | Some(Geometry::MultiPoint(_))
-            | Some(Geometry::MultiLineString(_))
-            | Some(Geometry::MultiPolygon(_))
-            | Some(Geometry::GeometryCollection(_))
-            | Some(Geometry::Rect(_))
-            | Some(Geometry::Triangle(_)) => {
-                log::debug!("Unsupported geometry in text tesselation")
-            }
-            None => {
-                log::debug!("No geometry in feature")
-            }
-        };
+        if let Some(current_text) = self.current_text.as_ref() {
+            match geometry {
+                Some(Geometry::Point(point)) => {
+                    self.symbol_features
+                        .push(SymbolGeometryTileFeature::new(Box::new(
+                            VectorGeometryTileFeature {
+                                geometry: vec![GeometryCoordinates(vec![Point2D::new(
+                                    point.x() as i16,
+                                    point.y() as i16,
+                                )])],
+                                string_value: current_text.clone(),
+                                type_: FeatureType::Point,
+                            },
+                        )))
+                }
+                Some(Geometry::Polygon(_polygon)) => {}
+                Some(Geometry::LineString(linestring)) => {
+                    self.symbol_features
+                        .push(SymbolGeometryTileFeature::new(Box::new(
+                            VectorGeometryTileFeature {
+                                geometry: vec![GeometryCoordinates(
+                                    linestring
+                                        .0
+                                        .iter()
+                                        .map(|c| Point2D::new(c.x as i16, c.y as i16))
+                                        .collect(),
+                                )],
+                                string_value: current_text.clone(),
+                                type_: FeatureType::LineString,
+                            },
+                        )))
+                }
+                Some(Geometry::Line(_))
+                | Some(Geometry::MultiPoint(_))
+                | Some(Geometry::MultiLineString(_))
+                | Some(Geometry::MultiPolygon(_))
+                | Some(Geometry::GeometryCollection(_))
+                | Some(Geometry::Rect(_))
+                | Some(Geometry::Triangle(_)) => {
+                    log::debug!("Unsupported geometry in text tesselation")
+                }
+                None => {
+                    log::debug!("No geometry in feature")
+                }
+            };
+        }
 
         Ok(())
     }

@@ -13,6 +13,8 @@ use crate::legacy::{
 #[derive(Clone)]
 pub struct VectorGeometryTileFeature {
     pub geometry: GeometryCollection,
+    pub string_value: String,
+    pub type_: FeatureType,
 }
 
 /// maplibre/maplibre-native#4add9ea original name: SymbolGeometryTileFeature
@@ -43,12 +45,11 @@ impl PartialOrd for SymbolGeometryTileFeature {
 impl SymbolGeometryTileFeature {
     /// maplibre/maplibre-native#4add9ea original name: getType
     pub fn get_type(&self) -> FeatureType {
-        //  todo!()
-        FeatureType::Point
+        self.feature.type_
     }
     /// maplibre/maplibre-native#4add9ea original name: getValue
-    pub fn get_value(&self, key: &str) -> Option<&Value> {
-        todo!()
+    pub fn get_value(&self, key: &str) -> Option<Value> {
+        Some(Value::String(self.feature.string_value.clone()))
     }
     /// maplibre/maplibre-native#4add9ea original name: getProperties
     pub fn get_properties(&self) -> &serde_json::Value {

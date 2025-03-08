@@ -36,14 +36,14 @@ pub type GeometryCollection = Vec<GeometryCoordinates>;
 
 // TODO: The following types are not final
 /// maplibre/maplibre-native#4add9ea original name: Value
-pub type Value = geo_types::Geometry;
+pub type Value = serde_json::Value;
 /// maplibre/maplibre-native#4add9ea original name: Identifier
 pub type Identifier = String;
 /// maplibre/maplibre-native#4add9ea original name: PropertyMap
 pub type PropertyMap = serde_json::Value;
 
 /// maplibre/maplibre-native#4add9ea original name: FeatureType
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone, Copy)]
 pub enum FeatureType {
     Unknown = 0,
     Point = 1,
